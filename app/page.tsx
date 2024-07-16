@@ -7,7 +7,7 @@ const page = async () => {
 
   const userID = user?.publicMetadata?.userId;
 
-  const res = await fetch(`http://localhost:3000/api/${userID}`, {
+  const res = await fetch(`${process.env.HOST_URL}/api/${userID}`, {
     cache: "no-cache",
     next: {
       tags: ["post"],

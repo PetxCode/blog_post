@@ -16,14 +16,12 @@ const page = () => {
   const user = useUser();
   const userID = user?.user?.publicMetadata?.userId;
 
-  console.log("show me: ", userID);
-
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [image, setImage] = useState("");
 
   const mainAction = async (formData: FormData) => {
-    await fetch(`http://localhost:3000/api/${userID}`, {
+    await fetch(`/api/${userID}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +31,7 @@ const page = () => {
       console.log("Post created successfully");
     });
 
-    // revalidateTag("post");
+    revalidateTag("post");
   };
 
   const toolbarOptions = [
