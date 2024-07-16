@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useUser } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidateTag } from "next/cache";
 
@@ -12,29 +13,27 @@ import "react-quill/dist/quill.snow.css";
 const page = () => {
   const [value, setValue] = useState("");
   // const user = await currentUser();
-  const userID = "";
+  const user = useUser();
+  const userID = user?.user?.publicMetadata?.userId;
 
-  console.log(userID);
+  console.log("show me: ", userID);
+
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [image, setImage] = useState("");
 
   const mainAction = async (formData: FormData) => {
-    const title = formData.get("title") as string;
-    const desc = formData.get("desc") as string;
-    const image = formData.get("image") as string;
-    const content = formData.get("content") as string;
-
-    console.log(content);
-
     await fetch(`http://localhost:3000/api/${userID}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title, desc, content, image }),
+      body: JSON.stringify({ title, desc, content: value, image }),
     }).then(() => {
       console.log("Post created successfully");
     });
 
-    revalidateTag("post");
+    // revalidateTag("post");
   };
 
   const toolbarOptions = [
@@ -69,19 +68,41 @@ const page = () => {
         <form action={mainAction}>
           <div>
             <label>title</label>
-            <input name="title" />
+            <Input
+              name="title"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
+            />
           </div>
           <div>
             <label>desc</label>
-            <input name="desc" />
+            <Input
+              name="desc"
+              value={desc}
+              onChange={(e) => {
+                setDesc(e.target.value);
+              }}
+            />
           </div>
-          <div className="flex flex-col">
-            <label>content</label>
-            <input name="content" />
+          <div className="my-5 w-[500px]">
+            <ReactQuill
+              modules={modules}
+              theme="snow"
+              value={value}
+              onChange={setValue}
+            />
           </div>
           <div>
             <label>image</label>
-            <input name="image" />
+            <Input
+              name="image"
+              value={image}
+              onChange={(e) => {
+                setImage(e.target.value);
+              }}
+            />
           </div>
 
           <Button type="submit" className="my-5">
@@ -90,19 +111,10 @@ const page = () => {
         </form>
       </div>
 
-      <div className="my-20 mx-5 w-[500px]">
-        <ReactQuill
-          modules={modules}
-          theme="snow"
-          value={value}
-          onChange={setValue}
-        />
-      </div>
-
       <div className="m-5">
         <div>{value}</div>
 
-        <div dangerouslySetInnerHTML={{ __html: value }} />
+        <div dangerouslySetInnerHTML={{ __html: { value } }} />
       </div>
     </div>
   );
